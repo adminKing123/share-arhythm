@@ -15,6 +15,13 @@ const APIS = {
 const GET_SONGS_ARTISTS = (artists) =>
   artists.map((artist) => artist.name).join(", ");
 
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+
 const MAKE_SONG_OG = (meta) => `
   <!DOCTYPE html>
   <html lang="en">
@@ -70,7 +77,7 @@ router.get("/content/songs/:id", async (req, res) => {
     return res.send(
       MAKE_SONG_OG({
         title: `${song.original_name}`,
-        description: `${song.album.title} • ${song.album.year} • ${song.artists[0].name} • ${song.duration}`,
+        description: `${song.album.title} • ${song.album.year} • ${song.artists[0].name} • ${formatTime(song.duration)}`,
         image: `${GET_SRC_URI(song.album.thumbnail300x300)}`,
         url: GET_APP_REDIRECT_URI(`/song/${id}`),
         musician: GET_SONGS_ARTISTS(song.artists),
@@ -84,6 +91,6 @@ router.get("/content/songs/:id", async (req, res) => {
 });
 
 app.use(checkIfBot);
-app.use("/api/", router)
+app.use("/.netlify/functions/api", router)
 
 module.exports.handler = serverless(app);
